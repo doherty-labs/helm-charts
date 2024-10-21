@@ -12,16 +12,8 @@ service:
     targetUtilizationPercentage: 60
     concurrency: 4
   env:
-    - name: DD_ENV
-      value: ""
-    - name: DD_SERVICE
-      value: rest-api
-    - name: DD_AGENT_HOST
-      value: datadog-agent
-    - name: DD_VERSION
-      value: ""
-    - name: DEBUG_MODE
-      value: "False"
+    - name: DJANGO_SETTINGS_MODULE
+      value: "django_project.settings_qa"
     - name: GUNICORN_WORKERS
       value: 4
   resources:
@@ -37,16 +29,8 @@ celery:
       repository: ""
       tag: ""
     env:
-      - name: DD_ENV
-        value: ""
-      - name: DD_SERVICE
-        value: celery-scheduler
-      - name: DD_AGENT_HOST
-        value: datadog-agent
-      - name: DD_VERSION
-        value: ""
-      - name: DEBUG_MODE
-        value: "False"
+      - name: DJANGO_SETTINGS_MODULE
+        value: "django_project.settings_qa"
     resources:
       requests:
         cpu: "2000m"
@@ -65,16 +49,8 @@ celery:
       targetUtilizationPercentage: 60
       concurrency: 1
     env:
-      - name: DD_ENV
-        value: ""
-      - name: DD_SERVICE
-        value: celery-flower
-      - name: DD_AGENT_HOST
-        value: datadog-agent
-      - name: DD_VERSION
-        value: ""
-      - name: DEBUG_MODE
-        value: "False"
+      - name: DJANGO_SETTINGS_MODULE
+        value: "django_project.settings_qa"
     resources:
       requests:
         cpu: "2000m"
@@ -91,16 +67,8 @@ celery:
       queueLengthTarget: 10
       queueName: celery
     env:
-      - name: DD_ENV
-        value: ""
-      - name: DD_SERVICE
-        value: celery-worker
-      - name: DD_AGENT_HOST
-        value: datadog-agent
-      - name: DD_VERSION
-        value: ""
-      - name: DEBUG_MODE
-        value: "False"
+      - name: DJANGO_SETTINGS_MODULE
+        value: "django_project.settings_qa"
       - name: CELERY_BROKER_URL
         valueFrom:
           secretKeyRef:
