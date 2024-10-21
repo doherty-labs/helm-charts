@@ -36,11 +36,6 @@ celery:
     image:
       repository: ""
       tag: ""
-    autoscaling:
-      minScale: 1
-      maxScale: 10
-      queueLengthTarget: 10
-      queueName: celery
     env:
       - name: DD_ENV
         value: ""
