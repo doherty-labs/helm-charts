@@ -33,3 +33,4 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           charts_dir: "./"
+          packages_with_index: "true"
