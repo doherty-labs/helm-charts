@@ -39,7 +39,7 @@ celery:
     name: flower
     namespace: default
     hostName: ""
-    port: 8000
+    port: 5555
     image:
       repository: ""
       tag: ""
