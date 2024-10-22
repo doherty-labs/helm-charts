@@ -20,7 +20,7 @@ spec:
       volumes:
         - name: secret-volume
           secret:
-            secretName: app-auth
+            secretName: django-rest-api
       terminationGracePeriodSeconds: 3600
       containers:
         - name: celery-worker-docker-image

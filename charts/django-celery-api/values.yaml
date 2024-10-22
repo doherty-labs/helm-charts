@@ -72,7 +72,7 @@ celery:
       - name: CELERY_BROKER_URL
         valueFrom:
           secretKeyRef:
-            name: app-auth
+            name: django-rest-api
             key: celery_broker_url
             optional: false
     resources:

@@ -8,7 +8,7 @@ spec:
       volumes:
         - name: secret-volume
           secret:
-            secretName: app-auth
+            secretName: django-rest-api
       containers:
         - name: django-migrate-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"

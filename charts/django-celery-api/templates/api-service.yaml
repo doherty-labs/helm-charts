@@ -16,7 +16,7 @@ spec:
       volumes:
         - name: secret-volume
           secret:
-            secretName: app-auth
+            secretName: django-rest-api
       containers:
         - image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
           volumeMounts:
