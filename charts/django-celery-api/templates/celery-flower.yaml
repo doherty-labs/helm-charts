@@ -14,17 +14,12 @@ spec:
     spec:
       containerConcurrency: {{ .Values.celery.flower.autoscaling.concurrency }}
       volumes:
-        - name: rest-api-logs
-          hostPath:
-            path: /var/logs/rest-api/
         - name: secret-volume
           secret:
             secretName: app-auth
       containers:
         - image: "{{ .Values.celery.flower.image.repository }}:{{ .Values.celery.flower.image.tag }}"
           volumeMounts:
-            - name: rest-api-logs
-              mountPath: /logs/
             - name: secret-volume
               readOnly: true
               mountPath: "/etc/secret-volume"
