@@ -5,10 +5,18 @@ metadata:
 spec:
   template:
     spec:
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: app-auth
       containers:
         - name: collectstatic-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
           command: ["python", "manage.py", "collectstatic"]
+          volumeMounts:
+            - name: secret-volume
+              readOnly: true
+              mountPath: "/etc/secret-volume"
           {{- with  .Values.service.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

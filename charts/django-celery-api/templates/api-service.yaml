@@ -17,11 +17,17 @@ spec:
         - name: rest-api-logs
           hostPath:
             path: /var/logs/rest-api/
+        - name: secret-volume
+          secret:
+            secretName: app-auth
       containers:
         - image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
           volumeMounts:
             - name: rest-api-logs
               mountPath: /logs/
+            - name: secret-volume
+              readOnly: true
+              mountPath: "/etc/secret-volume"
           ports:
             - containerPort: {{ .Values.service.port }}
           readinessProbe:

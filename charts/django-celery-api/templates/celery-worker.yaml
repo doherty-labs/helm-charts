@@ -21,6 +21,9 @@ spec:
         - name: celery-logs
           hostPath:
             path: /var/logs/celery-worker/
+        - name: secret-volume
+          secret:
+            secretName: app-auth
       terminationGracePeriodSeconds: 3600
       containers:
         - name: celery-worker-docker-image
@@ -37,6 +40,9 @@ spec:
           volumeMounts:
             - name: celery-logs
               mountPath: /logs/
+            - name: secret-volume
+              readOnly: true
+              mountPath: "/etc/secret-volume"
           readinessProbe:
             exec:
               command: ["python", "./django/django_project/celery_readiness.py"]
