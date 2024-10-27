@@ -1,25 +1,37 @@
-apiVersion: serving.knative.dev/v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: "{{ .Values.celery.flower.name }}"
+  name: "{{ .Values.celery.flower.name }}-deployment"
   namespace: "{{ .Values.celery.flower.namespace }}"
+  labels:
+    app: "{{ .Values.celery.flower.name }}-app"
 spec:
+  progressDeadlineSeconds: 1800
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ .Values.celery.flower.name }}-app"
   template:
     metadata:
-      annotations:
-        autoscaling.knative.dev/target-utilization-percentage: "{{ .Values.celery.flower.autoscaling.targetUtilizationPercentage }}"
-        autoscaling.knative.dev/min-scale: "{{ .Values.celery.flower.autoscaling.minScale }}"
-        autoscaling.knative.dev/max-scale: "{{ .Values.celery.flower.autoscaling.maxScale }}"
-        external-dns.alpha.kubernetes.io/hostname: "{{ .Values.celery.flower.hostName }}"
+      labels:
+        app: "{{ .Values.celery.flower.name }}-app"
     spec:
-      containerConcurrency: {{ .Values.celery.flower.autoscaling.concurrency }}
       volumes:
+        - name: rest-api-logs
+          hostPath:
+            path: /var/logs/rest-api/
         - name: secret-volume
           secret:
             secretName: django-rest-api
       containers:
-        - image: "{{ .Values.celery.flower.image.repository }}:{{ .Values.celery.flower.image.tag }}"
+        - name: "{{ .Values.celery.flower.name }}-docker-image"
+          image: "{{ .Values.celery.flower.image.repository }}:{{ .Values.celery.flower.image.tag }}"
+          imagePullPolicy: IfNotPresent
           volumeMounts:
+            - name: rest-api-logs
+              mountPath: /logs/
             - name: secret-volume
               readOnly: true
               mountPath: "/etc/secret-volume"
@@ -33,3 +45,38 @@ spec:
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Values.celery.flower.name }}-load-balancer"
+spec:
+  selector:
+    app: "{{ .Values.celery.flower.name }}-app"
+  ports:
+    - port: 80
+      name: http
+      targetPort: {{ .Values.celery.flower.port }}
+    - port: 443
+      name: https
+      targetPort: {{ .Values.celery.flower.port }}
+  type: LoadBalancer
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: "{{ .Values.celery.flower.name }}-scaler"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: "{{ .Values.celery.flower.name }}-deployment"
+  minReplicas: {{ .Values.celery.flower.autoscaling.minScale }}
+  maxReplicas: {{ .Values.celery.flower.autoscaling.maxScale }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.celery.flower.autoscaling.targetUtilizationPercentage }}
