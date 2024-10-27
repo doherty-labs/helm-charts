@@ -60,10 +60,10 @@ spec:
   scaleTargetRef:
     kind: Deployment
     name: "{{ .Values.celery.worker.name }}-deployment"
-  pollingInterval: 15
+  pollingInterval: 30
   cooldownPeriod: 200
-  maxReplicaCount: {{ .Values.celery.worker.autoscaling.minScale }}
-  minReplicaCount: {{ .Values.celery.worker.autoscaling.maxScale }}
+  maxReplicaCount: {{ .Values.celery.worker.autoscaling.maxScale }}
+  minReplicaCount: {{ .Values.celery.worker.autoscaling.minScale }}
   triggers:
     - type: rabbitmq
       metadata:
