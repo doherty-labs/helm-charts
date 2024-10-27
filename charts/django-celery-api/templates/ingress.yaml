@@ -31,6 +31,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: "{{ .Values.celery.flower.hostName }}-load-balancer"
+                name: "{{ .Values.celery.flower.name }}-load-balancer"
                 port:
                   number: 80
