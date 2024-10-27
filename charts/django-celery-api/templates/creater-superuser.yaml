@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-create-superuser
+spec:
+  template:
+    spec:
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: django-rest-api
+      containers:
+        - name: django-create-superuser-container
+          image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
+          command: ["python", "manage.py", "createsuperuser", "--noinput"]
+          volumeMounts:
+            - name: secret-volume
+              readOnly: true
+              mountPath: "/etc/secret-volume"
+          {{- with  .Values.service.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.service.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+            - name: DJANGO_SUPERUSER_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: django-rest-api
+                  key: django_superuser_username
+            - name: DJANGO_SUPERUSER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: django-rest-api
+                  key: django_superuser_email
+            - name: DJANGO_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: django-rest-api
+                  key: django_superuser_password
+          workingDir: /usr/src/app/django
+      restartPolicy: Never
+  backoffLimit: 1

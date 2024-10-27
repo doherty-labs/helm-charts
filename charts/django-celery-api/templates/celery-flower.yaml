@@ -45,6 +45,16 @@ spec:
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+            - name: FLOWER_USER
+              valueFrom:
+                secretKeyRef:
+                  name: django-rest-api
+                  key: flower_user
+            - name: FLOWER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: django-rest-api
+                  key: flower_password
 ---
 apiVersion: v1
 kind: Service
