@@ -12,7 +12,7 @@ spec:
       containers:
         - name: collectstatic-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
-          command: ["python", "manage.py", "collectstatic"]
+          command: ["python", "manage.py", "collectstatic", "--noinput"]
           volumeMounts:
             - name: secret-volume
               readOnly: true
