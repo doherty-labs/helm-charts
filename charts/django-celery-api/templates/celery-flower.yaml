@@ -7,7 +7,7 @@ metadata:
     app: "{{ .Values.celery.flower.name }}-app"
 spec:
   progressDeadlineSeconds: 1800
-  replicas: 3
+  replicas: 1
   strategy:
     type: RollingUpdate
   selector:
