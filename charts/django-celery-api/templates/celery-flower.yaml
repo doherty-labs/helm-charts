@@ -70,7 +70,7 @@ spec:
     - port: 443
       name: https
       targetPort: {{ .Values.celery.flower.port }}
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

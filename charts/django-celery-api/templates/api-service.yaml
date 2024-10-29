@@ -72,7 +72,7 @@ spec:
     - port: 443
       name: https
       targetPort: {{ .Values.service.port }}
-  type: LoadBalancer
+  type: ClusterIP
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
