@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Values.service.name }}-deployment"
+  namespace: "{{ .Values.service.namespace }}"
+  labels:
+    app: "{{ .Values.service.name }}-app"
+spec:
+  progressDeadlineSeconds: 1800
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ .Values.service.name }}-app"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Values.service.name }}-app"
+    spec:
+      volumes:
+        - name: rest-api-logs
+          hostPath:
+            path: /var/logs/rest-api/
+        - name: secret-volume
+          secret:
+            secretName: django-rest-api
+      containers:
+        - name: "{{ .Values.service.name }}-docker-image"
+          image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: rest-api-logs
+              mountPath: /logs/
+            - name: secret-volume
+              readOnly: true
+              mountPath: "/etc/secret-volume"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /admin/login/?next=/admin/
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /admin/login/?next=/admin/
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          {{- with .Values.service.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.service.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Values.service.name }}-load-balancer"
+spec:
+  selector:
+    app: "{{ .Values.service.name }}-app"
+  ports:
+    - port: 80
+      name: http
+      targetPort: {{ .Values.service.port }}
+    - port: 443
+      name: https
+      targetPort: {{ .Values.service.port }}
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: "{{ .Values.service.name }}-scaler"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: "{{ .Values.service.name }}-deployment"
+  minReplicas: {{ .Values.service.autoscaling.minScale }}
+  maxReplicas: {{ .Values.service.autoscaling.maxScale }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.service.autoscaling.targetUtilizationPercentage }}
