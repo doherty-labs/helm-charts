@@ -10,12 +10,11 @@ service:
     minScale: 1
     maxScale: 10
     targetUtilizationPercentage: 60
-    concurrency: 4
   env:
     - name: DJANGO_SETTINGS_MODULE
       value: "django_project.settings_qa"
     - name: GUNICORN_WORKERS
-      value: 4
+      value: 2
   resources:
     requests:
       cpu: "2000m"
@@ -47,7 +46,6 @@ celery:
       minScale: 1
       maxScale: 10
       targetUtilizationPercentage: 60
-      concurrency: 1
     env:
       - name: DJANGO_SETTINGS_MODULE
         value: "django_project.settings_qa"
