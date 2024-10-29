@@ -58,7 +58,7 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
             - name: ASYNC_MODE
-              value: "true"
+              value: "True"
 ---
 apiVersion: v1
 kind: Service
