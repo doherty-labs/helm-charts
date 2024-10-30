@@ -1,3 +1,10 @@
+# Example Project
+
+https://github.com/doherty-labs/django-rest-api
+
+# Terraform Modules
+
+https://github.com/doherty-labs/terraform-module-repo
 
 # Delete Old Jobs 
 
@@ -98,11 +105,4 @@ celery:
 
 ```
 
-# Example Project
-
-https://github.com/doherty-labs/django-rest-api
-
-# Terraform Modules
-
-https://github.com/doherty-labs/terraform-module-repo
 
