@@ -12,7 +12,7 @@ spec:
       containers:
         - name: django-create-superuser-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
-          command: ["python", "manage.py", "createsuperuser", "--noinput"]
+          command: ["python", "manage.py", "createadmin", "--noinput"]
           volumeMounts:
             - name: secret-volume
               readOnly: true
