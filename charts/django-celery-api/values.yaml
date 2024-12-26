@@ -85,6 +85,8 @@ celery:
           minScale: 1
           maxScale: 5
           queueLengthTarget: 10
+          pollingInterval: 30
+          cooldownPeriod: 200
         env:
           - name: DJANGO_SETTINGS_MODULE
             value: "${DJANGO_SETTINGS_MODULE}"
@@ -103,6 +105,8 @@ celery:
           minScale: 1
           maxScale: 5
           queueLengthTarget: 10
+          pollingInterval: 30
+          cooldownPeriod: 200
         env:
           - name: DJANGO_SETTINGS_MODULE
             value: "${DJANGO_SETTINGS_MODULE}"
