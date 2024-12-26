@@ -1,21 +1,22 @@
+{{- range .Values.celery.worker.queues }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ .Values.celery.worker.name }}-deployment"
-  namespace: "{{ .Values.celery.worker.namespace }}"
+  name: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}-deployment"
+  namespace: "{{ $.Values.celery.worker.namespace }}"
   labels:
-    app: "{{ .Values.celery.worker.name }}"
+    app: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}"
 spec:
   replicas: 1
   strategy:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: "{{ .Values.celery.worker.name }}"
+      app: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}"
   template:
     metadata:
       labels:
-        app: "{{ .Values.celery.worker.name }}"
+        app: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}"
     spec:
       volumes:
         - name: secret-volume
@@ -23,14 +24,14 @@ spec:
             secretName: django-rest-api
       terminationGracePeriodSeconds: 3600
       containers:
-        - name: celery-worker-docker-image
-          image: "{{ .Values.celery.worker.image.repository }}:{{ .Values.celery.worker.image.tag }}"
+        - name: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}-docker-image"
+          image: "{{ $.Values.celery.worker.image.repository }}:{{ $.Values.celery.worker.image.tag }}"
           imagePullPolicy: IfNotPresent
-          {{- with  .Values.celery.worker.resources }}
+          {{- with  .resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.celery.worker.env }}
+          {{- with .env }}
           env:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -60,20 +61,22 @@ spec:
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: "{{ .Values.celery.worker.name }}-scaledobject"
-  namespace: default
+  name: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}-scaledobject"
+  namespace: "{{ $.Values.celery.worker.namespace }}"
 spec:
   scaleTargetRef:
     kind: Deployment
-    name: "{{ .Values.celery.worker.name }}-deployment"
-  pollingInterval: 30
-  cooldownPeriod: 200
-  maxReplicaCount: {{ .Values.celery.worker.autoscaling.maxScale }}
-  minReplicaCount: {{ .Values.celery.worker.autoscaling.minScale }}
+    name: "{{ $.Values.celery.worker.name }}-{{ .queueName | replace "_" "-" }}-deployment"
+  pollingInterval: {{ .autoscaling.pollingInterval }}
+  cooldownPeriod: {{ .autoscaling.cooldownPeriod }}
+  maxReplicaCount: {{ .autoscaling.maxScale }}
+  minReplicaCount: {{ .autoscaling.minScale }}
   triggers:
     - type: rabbitmq
       metadata:
         hostFromEnv: CELERY_BROKER_URL
-        queueName: "{{ .Values.celery.worker.autoscaling.queueName }}"
+        queueName: "{{ .autoscaling.queueName }}"
         mode: QueueLength
-        value: "{{ .Values.celery.worker.autoscaling.queueLengthTarget }}"
+        value: "{{ .autoscaling.queueLengthTarget }}"
+---
+{{- end }}
