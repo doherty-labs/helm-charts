@@ -38,14 +38,12 @@ spec:
           ports:
             - containerPort: {{ .Values.service.port }}
           readinessProbe:
-            httpGet:
-              path: /admin/login/?next=/admin/
+            tcpSocket:
               port: {{ .Values.service.port }}
             initialDelaySeconds: 60
             periodSeconds: 30
           livenessProbe:
-            httpGet:
-              path: /admin/login/?next=/admin/
+            tcpSocket:
               port: {{ .Values.service.port }}
             initialDelaySeconds: 60
             periodSeconds: 30
