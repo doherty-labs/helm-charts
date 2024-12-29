@@ -9,6 +9,9 @@ spec:
         - name: secret-volume
           secret:
             secretName: django-rest-api
+        - name: create-superuser-job-logs
+          hostPath:
+            path: /var/logs/create-superuser-job/
       containers:
         - name: django-create-superuser-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
@@ -17,6 +20,8 @@ spec:
             - name: secret-volume
               readOnly: true
               mountPath: "/etc/secret-volume"
+            - name: create-superuser-job-logs
+              mountPath: /logs/
           {{- with  .Values.service.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

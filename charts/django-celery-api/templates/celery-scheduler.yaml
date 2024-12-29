@@ -21,6 +21,9 @@ spec:
         - name: secret-volume
           secret:
             secretName: django-rest-api
+        - name: celery-scheduler-logs
+          hostPath:
+            path: /var/logs/celery-scheduler/
       terminationGracePeriodSeconds: 10
       containers:
         - name: celery-scheduler-docker-image
@@ -38,6 +41,8 @@ spec:
             - name: secret-volume
               readOnly: true
               mountPath: "/etc/secret-volume"
+            - name: celery-scheduler-logs
+              mountPath: /logs/
           readinessProbe:
             exec:
               command: ["python", "./django/django_project/celery_readiness.py"]

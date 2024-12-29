@@ -9,6 +9,9 @@ spec:
         - name: secret-volume
           secret:
             secretName: django-rest-api
+        - name: elastic-migrate-job-logs
+          hostPath:
+            path: /var/logs/elastic-migrate-job/
       containers:
         - name: elastic-migrate-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
@@ -17,6 +20,8 @@ spec:
             - name: secret-volume
               readOnly: true
               mountPath: "/etc/secret-volume"
+            - name: elastic-migrate-job-logs
+              mountPath: /logs/
           {{- with  .Values.service.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

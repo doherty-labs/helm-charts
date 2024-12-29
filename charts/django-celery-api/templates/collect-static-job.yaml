@@ -9,6 +9,9 @@ spec:
         - name: secret-volume
           secret:
             secretName: django-rest-api
+        - name: collect-static-job-logs
+          hostPath:
+            path: /var/logs/collect-static-job/
       containers:
         - name: collectstatic-container
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
@@ -17,6 +20,8 @@ spec:
             - name: secret-volume
               readOnly: true
               mountPath: "/etc/secret-volume"
+            - name: collect-static-job-logs
+              mountPath: /logs/
           {{- with  .Values.service.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

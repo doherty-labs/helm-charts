@@ -19,9 +19,9 @@ spec:
         app: "{{ .Values.celery.flower.name }}-app"
     spec:
       volumes:
-        - name: rest-api-logs
+        - name: celery-flower-logs
           hostPath:
-            path: /var/logs/rest-api/
+            path: /var/logs/celery-flower/
         - name: secret-volume
           secret:
             secretName: django-rest-api
@@ -30,7 +30,7 @@ spec:
           image: "{{ .Values.celery.flower.image.repository }}:{{ .Values.celery.flower.image.tag }}"
           imagePullPolicy: IfNotPresent
           volumeMounts:
-            - name: rest-api-logs
+            - name: celery-flower-logs
               mountPath: /logs/
             - name: secret-volume
               readOnly: true

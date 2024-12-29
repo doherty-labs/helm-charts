@@ -19,9 +19,9 @@ spec:
         app: "{{ .Values.service.name }}-websocket-app"
     spec:
       volumes:
-        - name: rest-api-logs
+        - name: websocket-service-logs
           hostPath:
-            path: /var/logs/rest-api/
+            path: /var/logs/websocket-service/
         - name: secret-volume
           secret:
             secretName: django-rest-api
@@ -30,7 +30,7 @@ spec:
           image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag }}"
           imagePullPolicy: IfNotPresent
           volumeMounts:
-            - name: rest-api-logs
+            - name: websocket-service-logs
               mountPath: /logs/
             - name: secret-volume
               readOnly: true
