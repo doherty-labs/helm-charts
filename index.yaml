@@ -3,6 +3,16 @@ entries:
   django-celery-api:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-01-03T08:59:37.796285443Z"
+    description: A Helm chart for Kubernetes
+    digest: 941b204669fbe039555f1006b6fd1ddb02cef598d8e1bc2115fa5e5987f8cdaf
+    name: django-celery-api
+    type: application
+    urls:
+    - django-celery-api-0.1.20.tgz
+    version: 0.1.20
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2024-12-29T12:29:20.025280871Z"
     description: A Helm chart for Kubernetes
     digest: 70c6773aab02a5ebf9b93c044ab3e4a2e6b6109e42e4e1cb416b403535fa27f3
@@ -201,4 +211,4 @@ entries:
     urls:
     - https://github.com/doherty-labs/helm-charts/releases/download/django-celery-api-0.1.0/django-celery-api-0.1.0.tgz
     version: 0.1.0
-generated: "2024-12-29T12:29:20.025427044Z"
+generated: "2025-01-03T08:59:37.796447734Z"
