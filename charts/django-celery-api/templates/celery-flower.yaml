@@ -60,6 +60,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: "{{ .Values.celery.flower.name }}-load-balancer"
+  annotations:
+    haproxy.org/pod-maxconn: "10"
 spec:
   selector:
     app: "{{ .Values.celery.flower.name }}-app"
@@ -71,22 +73,34 @@ spec:
       name: https
       targetPort: {{ .Values.celery.flower.port }}
   type: ClusterIP
+
 ---
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
 metadata:
-  name: "{{ .Values.celery.flower.name }}-scaler"
+ name: "{{ .Values.celery.flower.name }}-scaled-object"
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: "{{ .Values.celery.flower.name }}-deployment"
-  minReplicas: {{ .Values.celery.flower.autoscaling.minScale }}
-  maxReplicas: {{ .Values.celery.flower.autoscaling.maxScale }}
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.celery.flower.autoscaling.targetUtilizationPercentage }}
+ scaleTargetRef:
+   kind: Deployment       
+   name: "{{ .Values.celery.flower.name }}-deployment"
+ pollingInterval: 20
+ minReplicaCount: {{ .Values.celery.flower.autoscaling.minScale }}                 
+ maxReplicaCount: {{ .Values.celery.flower.autoscaling.maxScale }}           
+ advanced:                                 
+   restoreToOriginalReplicaCount: false    
+   horizontalPodAutoscalerConfig:          
+     behavior:                             
+       scaleDown:
+         stabilizationWindowSeconds: 300
+         policies:
+         - type: Percent
+           value: 25
+           periodSeconds: 60
+ triggers:
+ - type: prometheus
+   metadata:
+     serverAddress: http://prometheus-server.default.svc.cluster.local
+     metricName: haproxy_backend_current_queue
+     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="default-{{ .Values.celery.flower.name }}-load-balancer-http"}[30s]))
+     threshold: '10'

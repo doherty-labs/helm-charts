@@ -62,6 +62,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: "{{ .Values.service.name }}-websocket-load-balancer"
+  annotations:
+    haproxy.org/pod-maxconn: "100"
 spec:
   selector:
     app: "{{ .Values.service.name }}-websocket-app"
@@ -73,22 +75,34 @@ spec:
       name: https
       targetPort: {{ .Values.service.port }}
   type: ClusterIP
+
 ---
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
 metadata:
-  name: "{{ .Values.service.name }}-websocket-scaler"
+ name: "{{ .Values.service.name }}-websocket-scaled-object"
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: "{{ .Values.service.name }}-websocket-deployment"
-  minReplicas: {{ .Values.service.autoscaling.minScale }}
-  maxReplicas: {{ .Values.service.autoscaling.maxScale }}
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.service.autoscaling.targetUtilizationPercentage }}
+ scaleTargetRef:
+   kind:          Deployment       
+   name:          "{{ .Values.service.name }}-websocket-deployment"
+ pollingInterval: 20                       
+ minReplicaCount: {{ .Values.service.autoscaling.minScale }}                
+ maxReplicaCount: {{ .Values.service.autoscaling.maxScale }}           
+ advanced:                                 
+   restoreToOriginalReplicaCount: false    
+   horizontalPodAutoscalerConfig:          
+     behavior:                             
+       scaleDown:
+         stabilizationWindowSeconds: 300
+         policies:
+         - type: Percent
+           value: 25
+           periodSeconds: 60
+ triggers:
+ - type: prometheus
+   metadata:
+     serverAddress: http://prometheus-server.default.svc.cluster.local
+     metricName: haproxy_backend_current_queue
+     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="default-{{ .Values.service.name }}-websocket-load-balancer-http"}[30s]))
+     threshold: '10'
