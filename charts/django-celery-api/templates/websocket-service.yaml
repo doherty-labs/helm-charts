@@ -84,8 +84,8 @@ metadata:
  name: "{{ .Values.service.name }}-websocket-scaled-object"
 spec:
  scaleTargetRef:
-   kind:          Deployment       
-   name:          "{{ .Values.service.name }}-websocket-deployment"
+   kind: Deployment
+   name: "{{ .Values.service.name }}-websocket-deployment"
  pollingInterval: 20                       
  minReplicaCount: {{ .Values.service.autoscaling.minScale }}                
  maxReplicaCount: {{ .Values.service.autoscaling.maxScale }}           
