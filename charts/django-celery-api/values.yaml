@@ -9,7 +9,7 @@ service:
   autoscaling:
     minScale: 1
     maxScale: 10
-    targetUtilizationPercentage: 60
+    concurrencyPerPod: 100
   env:
     - name: DJANGO_SETTINGS_MODULE
       value: "django_project.settings_qa"
@@ -45,7 +45,7 @@ celery:
     autoscaling:
       minScale: 1
       maxScale: 10
-      targetUtilizationPercentage: 60
+      concurrencyPerPod: 100
     env:
       - name: DJANGO_SETTINGS_MODULE
         value: "django_project.settings_qa"
@@ -120,3 +120,24 @@ celery:
           requests:
             cpu: "2000m"
             memory: "4Gi"
+
+
+webapps:
+  - name: "landing"
+    namespace: default
+    hostName: ""
+    port: 3000
+    image:
+      repository: ""
+      tag: ""
+    autoscaling:
+      minScale: 1
+      maxScale: 10
+      concurrencyPerPod: 100
+    env:
+      - name: DJANGO_SETTINGS_MODULE
+        value: "django_project.settings_qa"
+    resources:
+      requests:
+        cpu: "2000m"
+        memory: "4Gi"

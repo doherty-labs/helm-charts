@@ -1,0 +1,98 @@
+{{- range .Values.webapps}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .name }}-webapp-deployment"
+  namespace: "{{ .namespace }}"
+  labels:
+    app: "{{ .name }}-webapp-app"
+spec:
+  progressDeadlineSeconds: 1800
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: "{{ .name }}-webapp-app"
+  template:
+    metadata:
+      labels:
+        app: "{{ .name }}-webapp-app"
+    spec:
+      containers:
+        - name: "{{ .name }}-webapp-docker-image"
+          image: "{{ .image.repository }}:{{ .image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .port }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .port }}
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .port }}
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          {{- with .resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .name }}-webapp-load-balancer"
+  annotations:
+    haproxy.org/pod-maxconn: "{{ .autoscaling.concurrencyPerPod }}"
+spec:
+  selector:
+    app: "{{ .name }}-webapp-app"
+  ports:
+    - port: 80
+      name: http
+      targetPort: {{ .port }}
+    - port: 443
+      name: https
+      targetPort: {{ .port }}
+  type: ClusterIP
+
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+ name: "{{ .name }}-scaled-object"
+spec:
+ scaleTargetRef:
+   kind: Deployment
+   name: "{{ .name }}-webapp-deployment"
+ pollingInterval: 20                       
+ minReplicaCount: {{ .autoscaling.minScale }}
+ maxReplicaCount: {{ .autoscaling.maxScale }}
+ advanced:                                 
+   restoreToOriginalReplicaCount: false    
+   horizontalPodAutoscalerConfig:          
+     behavior:                             
+       scaleDown:
+         stabilizationWindowSeconds: 300
+         policies:
+         - type: Percent
+           value: 25
+           periodSeconds: 60
+ triggers:
+ - type: prometheus
+   metadata:
+     serverAddress: http://prometheus-server.default.svc.cluster.local
+     metricName: haproxy_backend_current_queue
+     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="{{ .namespace }}-{{ .name }}-webapp-load-balancer-http"}[30s]))
+     threshold: '10'
+---
+{{- end }}
