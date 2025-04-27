@@ -8,11 +8,26 @@ spec:
   ingressClassName: haproxy
   tls:
     - hosts:
+        {{- range .Values.webapps}}
+        - {{ .hostName }}
+        {{- end }}
         - {{ .Values.service.hostName }}
         - {{ .Values.celery.flower.hostName }}
         - "websocket-{{ .Values.service.hostName }}"
       secretName: cloudflare-cluster-issuer
   rules:
+    {{- range .Values.webapps}}
+    - host: {{ .hostName }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: "{{ .name }}-webapp-load-balancer"
+                port:
+                  number: 80
+    {{- end }}
     - host: {{ .Values.service.hostName }}
       http:
         paths:
