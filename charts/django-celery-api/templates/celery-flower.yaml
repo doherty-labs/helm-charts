@@ -61,7 +61,7 @@ kind: Service
 metadata:
   name: "{{ .Values.celery.flower.name }}-load-balancer"
   annotations:
-    haproxy.org/pod-maxconn: " {{ .Values.celery.flower.autoscaling.concurrencyPerPod }}"
+    haproxy.org/pod-maxconn: {{ .Values.celery.flower.autoscaling.concurrencyPerPod }}
 spec:
   selector:
     app: "{{ .Values.celery.flower.name }}-app"
