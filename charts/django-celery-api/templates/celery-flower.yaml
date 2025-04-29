@@ -102,5 +102,5 @@ spec:
    metadata:
      serverAddress: http://prometheus-server.default.svc.cluster.local
      metricName: haproxy_backend_current_queue
-     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="{{ .Values.celery.flower.namespace }}-{{ .Values.celery.flower.name }}-load-balancer-http"}[30s]))
+     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="{{ .Values.celery.flower.namespace }}_{{ .Values.celery.flower.name }}-load-balancer_http"}[15s]))
      threshold: '10'

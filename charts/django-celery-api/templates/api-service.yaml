@@ -104,5 +104,5 @@ spec:
    metadata:
      serverAddress: http://prometheus-server.default.svc.cluster.local
      metricName: haproxy_backend_current_queue
-     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="{{ .Values.service.namespace }}-{{ .Values.service.name }}-load-balancer-http"}[30s]))
+     query: sum(avg_over_time(haproxy_backend_current_queue{proxy="{{ .Values.service.namespace }}_{{ .Values.service.name }}-load-balancer_http"}[15s]))
      threshold: '10'
