@@ -80,7 +80,7 @@ spec:
     - type: rabbitmq
       metadata:
         hostFromEnv: CELERY_BROKER_URL
-        queueName: "{{ .autoscaling.queueName }}"
+        queueName: "{{ .queueName }}"
         mode: QueueLength
         value: "{{ .autoscaling.queueLengthTarget }}"
 ---
