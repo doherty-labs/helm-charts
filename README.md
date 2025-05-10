@@ -1,11 +1,3 @@
-# Example Project
-
-https://github.com/doherty-labs/django-rest-api
-
-# Terraform Modules
-
-https://github.com/doherty-labs/terraform-module-repo
-
 # Add Repo
 
 `helm repo add doherty-labs https://doherty-labs.github.io/helm-charts/`
