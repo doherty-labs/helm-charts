@@ -1,15 +1,16 @@
-# Pulumi Automation API 
+# Chart for Deploying Django, Celery and NextJS
 
+**Pulumi Automation API Script**
 https://github.com/doherty-labs/pulumi-django-celery
 
-# Add Repo
+## Add Repo
 
 `helm repo add doherty-labs https://doherty-labs.github.io/helm-charts/`
 
-# Install Chart
+## Install Chart
 `helm upgrade --install django-celery-api doherty-labs/django-celery-api -f ./infrastructure/helm-values.yaml --debug --wait`
 
-# Delete Old Jobs 
+## Delete Old Jobs 
 
 ```
 kubectl delete -n default job collectstatic --cascade=background --ignore-not-found=true
